@@ -24,7 +24,7 @@ https://github.com/wuxh123/hadoop_text
 docker pull harisekhon/hbase:1.3
 
 # 使用我的虚拟机测试如图
-![image](/img/1.jpg)
+![image](img/1.bmp)
 
 
 # 其他说明
