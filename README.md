@@ -36,8 +36,16 @@ https://github.com/wuxh123/hadoop_text
 docker pull harisekhon/hbase:1.3
 
 # 使用我的虚拟机测试如图
+### 启动顺序如图所示，测试指令如图4所示
+
+更多的测试指令请参考controller类
+
 ![image](img/1.bmp)
 
+代码在虚拟机桌面
+
+sts启动路径
+![image](img/2.bmp)
 
 # 其他说明
 
