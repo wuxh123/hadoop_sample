@@ -1,37 +1,24 @@
-package hbase;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-
-import com.cloud.hbase.HBaseService;
+package com.cloud.hbase;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 测试Hbase SQL
- * @author wuxh
- * @date 2019/3/3
- * @since 1.0.0
- */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-@WebAppConfiguration
-public class TestHbaseSql {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-    @Autowired
+@Controller
+@RequestMapping("hbase")
+public class HbaseController {
+
+	@Autowired
     private HBaseService hbaseService;
-
-    /**
-     * 测试删除、创建表
-     */
-    @Test
-    public void testCreateTable() {
+	
+	@ResponseBody
+	@RequestMapping("/hbasecreatetable")
+	public R HbaseCreateTable() {
         //删除表
         hbaseService.deleteTable("test_base");
 
@@ -64,13 +51,16 @@ public class TestHbaseSql {
         result2.forEach((k,value) -> {
             System.out.println(k + "---" + value);
         });
+        
+        return R.ok().put("create", "test_base");
     }
-    
-    /**
+	
+	/**
      * 测试指定startRowKey和stopRowKey的查询
      */
-    @Test
-    public void testSelectByStartStopRowKey(){
+    @ResponseBody
+    @RequestMapping("/testSelectByStartStopRowKey")
+    public R testSelectByStartStopRowKey(){
         Map<String,Map<String,String>> result = hbaseService.getResultScanner("test_base","66804_000002","66804_000004");
         result.forEach((rowKey,columnMap) -> {
             System.out.println("rowKey:" + rowKey);
@@ -80,23 +70,27 @@ public class TestHbaseSql {
             });
         });
         System.out.println("-----------------------");
+	return R.ok();
     }
     
     /**
      * 测试获取所有表名
      */
-    @Test
-    public void testGetTableNameLists(){
+    @ResponseBody
+    @RequestMapping("/testGetTableNameLists")
+    public R testGetTableNameLists(){
         List<String> result = hbaseService.getAllTableNames();
 
         result.forEach(System.out::println);
+	return R.ok();
     }
     
     /**
      * 测试获取指定单元格多个版本的数据
      */
-    @Test
-    public void testGetColumnValuesByVersion(){
+    @ResponseBody
+    @RequestMapping("/testGetColumnValuesByVersion")
+    public R testGetColumnValuesByVersion(){
         hbaseService.setColumnValue("test_base","66804_000002","f","varName","aa");
         hbaseService.setColumnValue("test_base","66804_000002","f","varName","bb");
         hbaseService.setColumnValue("test_base","66804_000002","f","varName","cc");
@@ -105,14 +99,16 @@ public class TestHbaseSql {
 
         List<String> result = hbaseService.getColumnValuesByVersion("test_base","66804_000002","f","varName",4);
         result.forEach(System.out::println);
+	return R.ok();
     }
 
     
     /**
      * 测试根据行键过滤器查询数据
      */
-    @Test
-    public void testGetResultScannerPrefixFilter(){
+    @ResponseBody
+    @RequestMapping("/testGetResultScannerPrefixFilter")
+    public R testGetResultScannerPrefixFilter(){
         hbaseService.putData("test_base","111","f",new String[]{"project_id","varName","coefs","pvalues","tvalues","create_time"},new String[]{"111","111","111","111","111","null"});
         hbaseService.putData("test_base","112","f",new String[]{"project_id","varName","coefs","pvalues","tvalues","create_time"},new String[]{"112","112","112","112","112","null"});
 
@@ -126,13 +122,15 @@ public class TestHbaseSql {
             });
             System.out.println("-----------------------");
         });
+	return R.ok();
     }
     
     /**
      * 测试根据列名过滤器查询数据
      */
-    @Test
-    public void testGetResultScannerColumnPrefixFilter(){
+    @ResponseBody
+    @RequestMapping("/testGetResultScannerColumnPrefixFilter")
+    public R testGetResultScannerColumnPrefixFilter(){
         hbaseService.putData("test_base","211","f",new String[]{"project_id"},new String[]{"11111"});
         hbaseService.putData("test_base","211","f",new String[]{"var_name1"},new String[]{"111"});
         hbaseService.putData("test_base","212","f",new String[]{"var_name2"},new String[]{"112"});
@@ -147,13 +145,15 @@ public class TestHbaseSql {
             });
             System.out.println("-----------------------");
         });
+	return R.ok();
     }
     
     /**
      * 测试查询行键中包含特定字符的数据
      */
-    @Test
-    public void testGetResultScannerRowFilter(){
+    @ResponseBody
+    @RequestMapping("/testGetResultScannerRowFilter")
+    public R testGetResultScannerRowFilter(){
         hbaseService.putData("test_base","abc666666def","f",new String[]{"project_id","varName","coefs","pvalues","tvalues","create_time"},new String[]{"111","abc6666def","111","111","111","null"});
         hbaseService.putData("test_base","cba666666fed","f",new String[]{"project_id","varName","coefs","pvalues","tvalues","create_time"},new String[]{"112","cba6666fed","112","112","112","null"});
 
@@ -167,13 +167,15 @@ public class TestHbaseSql {
             });
             System.out.println("-----------------------");
         });
+	return R.ok();
     }
     
     /**
      * 测试删除指定的列
      */
-    @Test
-    public void testDeleteColumn(){
+    @ResponseBody
+    @RequestMapping("/testDeleteColumn")
+    public R testDeleteColumn(){
         //新增一个测试列
         hbaseService.setColumnValue("test_base","66804_000002","f","xxx","123");
         String str = hbaseService.getColumnValue("test_base","66804_000002","f","xxx");
@@ -185,13 +187,15 @@ public class TestHbaseSql {
         //再次取值
         String str2 = hbaseService.getColumnValue("test_base","66804_000002","f","xxx");
         System.out.println("第二次取值：" + str2);
+	return R.ok();
     }
 
     /**
      * 测试删除指定的行
      */
-    @Test
-    public void testDeleteRow(){
+    @ResponseBody
+    @RequestMapping("/testDeleteRow")
+    public R testDeleteRow(){
         //取值
         Map<String,String> result1 = hbaseService.getRowData("test_base","66804_000003");
         System.out.println("第一次取值输出：");
@@ -208,13 +212,15 @@ public class TestHbaseSql {
         result2.forEach((k,value) -> {
             System.out.println(k + "---" + value);
         });
+	return R.ok();
     }
     
     /**
      * 测试删除指定的列族
      */
-    @Test
-    public void testDeleteColumnFamily(){
+    @ResponseBody
+    @RequestMapping("/testDeleteColumnFamily")
+    public R testDeleteColumnFamily(){
         //添加测试数据
         hbaseService.putData("test_base","777","back",new String[]{"var_name1"},new String[]{"777"});
 
@@ -234,5 +240,7 @@ public class TestHbaseSql {
         result2.forEach((k,value) -> {
             System.out.println(k + "---" + value);
         });
+	return R.ok();
     }
+	
 }
